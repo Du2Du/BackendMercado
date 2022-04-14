@@ -1,26 +1,67 @@
-import { Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '../../prisma';
 import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+  constructor(private readonly prismaService: PrismaService) {}
+
+  create(createProductDto: Prisma.ProductCreateInput) {
+    const validity = new Date(createProductDto.validity);
+    return this.prismaService.product.create({
+      data: { ...createProductDto, validity },
+    });
   }
 
   findAll() {
-    return `This action returns all products`;
+    return this.prismaService.product.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: number) {
+    const dataProduct = {
+      where: { id },
+    };
+    const product = await this.prismaService.product.findUnique(dataProduct);
+
+    if (!product) throw new NotFoundException('Product not found');
+
+    return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    const validity = new Date(updateProductDto.validity);
+
+    const dataProduct = {
+      where: { id },
+      data: { ...updateProductDto, validity },
+    };
+
+    const product = await this.prismaService.product.update(dataProduct);
+
+    if (!product) throw new NotFoundException('Product not found');
+
+    return product;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number) {
+    const serviceProduct = this.prismaService.product;
+
+    const dataProduct = {
+      where: { id },
+    };
+
+    const product = await serviceProduct.findUnique(dataProduct);
+
+    if (!product) throw new NotFoundException('Product not found');
+
+    await serviceProduct.delete(dataProduct);
+
+    return 'Product successfully removed';
   }
 }
