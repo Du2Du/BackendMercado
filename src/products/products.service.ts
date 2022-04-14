@@ -1,16 +1,16 @@
+import { Prisma } from '@prisma/client';
 import {
   BadRequestException,
   HttpException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma';
 import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   create(createProductDto: Prisma.ProductCreateInput) {
     const validity = new Date(createProductDto.validity);
