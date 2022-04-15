@@ -17,6 +17,8 @@ export class ProductsService {
   }
   private serviceProduct = this.prismaService.product;
 
+  //-------------------------------------------------------
+
   create(createProductDto: Prisma.ProductCreateInput) {
     const validity = new Date(createProductDto.validity);
     return this.serviceProduct.create({
@@ -24,9 +26,13 @@ export class ProductsService {
     });
   }
 
+  //-------------------------------------------------------
+
   findAll() {
     return this.serviceProduct.findMany();
   }
+
+  //-------------------------------------------------------
 
   async findOne(id: number) {
     const dataProduct = {
@@ -38,6 +44,20 @@ export class ProductsService {
 
     return product;
   }
+
+  //-------------------------------------------------------
+
+  async findByFilter(query: { category: string }) {
+    const product = await this.serviceProduct.findMany({
+      where: {
+        category: query.category,
+      },
+    });
+
+    return product;
+  }
+
+  //-------------------------------------------------------
 
   async update(id: number, updateProductDto: UpdateProductDto) {
     const validity = new Date(updateProductDto.validity);
@@ -53,6 +73,8 @@ export class ProductsService {
 
     return product;
   }
+
+  //-------------------------------------------------------
 
   async remove(id: number) {
     const dataProduct = {
