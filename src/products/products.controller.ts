@@ -22,13 +22,9 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
+  findProduct(@Query() query?: { category: string }) {
+    if (query) return this.productsService.findByFilter(query);
     return this.productsService.findAll();
-  }
-
-  @Get('filter')
-  findByFilter(@Query() query) {
-    return this.productsService.findByFilter(query);
   }
 
   @Get(':id')
