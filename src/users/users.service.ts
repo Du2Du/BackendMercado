@@ -28,7 +28,7 @@ export class UsersService {
     };
     const user = await this.prismaService.user.findUnique(dataUser);
 
-    if (!user) throw new NotFoundException('Product not found');
+    if (!user) throw new NotFoundException('User not found');
 
     return user;
   }
@@ -44,7 +44,7 @@ export class UsersService {
 
     const user = await this.prismaService.user.update(dataUser);
 
-    if (!user) throw new NotFoundException('Product not found');
+    if (!user) throw new NotFoundException('User not found');
 
     return user;
   }
@@ -58,10 +58,10 @@ export class UsersService {
 
     const user = await serviceUser.findUnique(dataUser);
 
-    if (!user) throw new NotFoundException('Product not found');
+    if (!user) throw new NotFoundException('User not found');
 
     await serviceUser.delete(dataUser);
 
-    return 'Product successfully removed';
+    return 'User successfully removed';
   }
 }
