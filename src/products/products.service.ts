@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Product } from '@prisma/client';
 import { PrismaService } from '../../prisma';
 import { UpdateProductDto } from './dto/update-product.dto';
 
@@ -12,27 +12,52 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class ProductsService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  private notFoundResponse() {
+    throw new NotFoundException('Product not found');
+  }
+  private serviceProduct = this.prismaService.product;
+
+  //-------------------------------------------------------
+
   create(createProductDto: Prisma.ProductCreateInput) {
     const validity = new Date(createProductDto.validity);
-    return this.prismaService.product.create({
+    return this.serviceProduct.create({
       data: { ...createProductDto, validity },
     });
   }
 
+  //-------------------------------------------------------
+
   findAll() {
-    return this.prismaService.product.findMany();
+    return this.serviceProduct.findMany();
   }
+
+  //-------------------------------------------------------
 
   async findOne(id: number) {
     const dataProduct = {
       where: { id },
     };
-    const product = await this.prismaService.product.findUnique(dataProduct);
+    const product = await this.serviceProduct.findUnique(dataProduct);
 
-    if (!product) throw new NotFoundException('Product not found');
+    if (!product) this.notFoundResponse();
 
     return product;
   }
+
+  //-------------------------------------------------------
+
+  async findByFilter(query: { category: string }) {
+    const product = await this.serviceProduct.findMany({
+      where: {
+        category: query.category,
+      },
+    });
+
+    return product;
+  }
+
+  //-------------------------------------------------------
 
   async update(id: number, updateProductDto: UpdateProductDto) {
     const validity = new Date(updateProductDto.validity);
@@ -42,25 +67,25 @@ export class ProductsService {
       data: { ...updateProductDto, validity },
     };
 
-    const product = await this.prismaService.product.update(dataProduct);
+    const product = await this.serviceProduct.update(dataProduct);
 
-    if (!product) throw new NotFoundException('Product not found');
+    if (!product) this.notFoundResponse();
 
     return product;
   }
 
-  async remove(id: number) {
-    const serviceProduct = this.prismaService.product;
+  //-------------------------------------------------------
 
+  async remove(id: number) {
     const dataProduct = {
       where: { id },
     };
 
-    const product = await serviceProduct.findUnique(dataProduct);
+    const product = await this.serviceProduct.findUnique(dataProduct);
 
-    if (!product) throw new NotFoundException('Product not found');
+    if (!product) this.notFoundResponse();
 
-    await serviceProduct.delete(dataProduct);
+    await this.serviceProduct.delete(dataProduct);
 
     return 'Product successfully removed';
   }

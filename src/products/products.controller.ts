@@ -3,10 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -22,7 +22,8 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
+  findProduct(@Query() query?: { category: string }) {
+    if (query) return this.productsService.findByFilter(query);
     return this.productsService.findAll();
   }
 
